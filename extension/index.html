@@ -69,25 +69,25 @@
   <div class="Pod2">
     <div class="Pod0">
       <label for="visitStore">
-        <input type="checkbox" name="media" id="visitStore" value="checked"/> Remove or update all sources that lead to the Shopify store
+        <input type="checkbox" name="removeSources" id="removeSources"/> Remove or update all sources that lead to the Shopify store
       </label>
       <br/>
       <label>
-        <input type="checkbox" name="media" id="visitStore" /> Show contact email
+        <input type="checkbox" name="showContactEmail" id="showContactEmail" /> Show contact email
       </label>
       <br/>
       <div>
-        <label for="minBlueValue">Store URL:</label>
-        <input  id="minBlueValue" name="minBlueValue"  />
+        <label for="storeURL">Store URL:</label>
+        <input  id="storeURL" name="storeURL"  />
       </div>
       <br/>
       <div>
-        <label for="minBlueValue">Store URL Text:</label>
-        <input  id="minBlueValue" name="minBlueValue" value="Return to App" />
+        <label for="storeURLText">Store URL Text:</label>
+        <input  id="storeURLText" name="storeURLText" value="Return to App" />
       </div>
     </div>
     <div class="Pod1">
-      <button>Start Job</button>
+      <button id="startJob">Start Job</button>
     </div>
   </div>
   <script src="popup.js"></script>
