@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Replace Shopify Email Variables",
+  "version": "1.0",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "icon.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' blob: data:"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "description": "Replace Shopify Email Variables"
+}

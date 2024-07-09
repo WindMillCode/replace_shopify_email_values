@@ -1,0 +1,94 @@
+<html>
+  <head>
+    <style>
+      body {
+        background-color: #171a1b;
+        color: white;
+        width: 500px;
+
+      }
+      .Pod0{
+        display: flex;
+        flex-direction: column;
+      }
+      .Pod1{
+        flex: 0 0 50%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+      }
+      .Pod2{
+        flex: 0 0 50%;
+        display: flex;
+      }
+      input,button {
+        cursor: pointer;
+      }
+      input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        padding: 0;
+        background-color: orange;
+        border: 2px solid #555;
+        border-radius: 4px;
+        position: relative;
+        top: 5px;
+      }
+      input[type="checkbox"]:checked::before {
+        content: "";
+        display: block;
+        width: 12px;
+        height: 12px;
+
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        border-radius: 2px;
+      }
+      input[type="checkbox"]:checked::after {
+        content: "\2714";
+        display: block;
+        color: black;
+        font-size: 16px;
+        position: absolute;
+        top: -4px;
+        left: 1px;
+      }
+    </style>
+    <title>Replace Shopify Email Variables</title>
+
+    <script src="popup.js"></script>
+  </head>
+<body>
+  <h1>Replace Shopify Email Variables</h1>
+  <div class="Pod2">
+    <div class="Pod0">
+      <label for="visitStore">
+        <input type="checkbox" name="media" id="visitStore" value="checked"/> Remove or update all sources that lead to the Shopify store
+      </label>
+      <br/>
+      <label>
+        <input type="checkbox" name="media" id="visitStore" /> Show contact email
+      </label>
+      <br/>
+      <div>
+        <label for="minBlueValue">Store URL:</label>
+        <input  id="minBlueValue" name="minBlueValue"  />
+      </div>
+      <br/>
+      <div>
+        <label for="minBlueValue">Store URL Text:</label>
+        <input  id="minBlueValue" name="minBlueValue" value="Return to App" />
+      </div>
+    </div>
+    <div class="Pod1">
+      <button>Start Job</button>
+    </div>
+  </div>
+</body>
+</html>
