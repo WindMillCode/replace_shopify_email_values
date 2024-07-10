@@ -19,17 +19,15 @@ startJob = ()=>{
   ];
   value = {}
   mediaOptions.forEach(option => {
-    const checkbox = document.getElementById(option);
-
+    let checkbox = document.getElementById(option);
     value[option] = checkbox.checked;
-
   });
   const inputs = [
     "storeURL",
     "storeURLText"
   ];
   inputs.forEach(option => {
-    const myInput = document.getElementById(option);
+    let myInput = document.getElementById(option);
 
     if (myInput) {
       value[option] =myInput.value
