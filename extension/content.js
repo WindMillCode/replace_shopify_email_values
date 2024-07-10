@@ -7,6 +7,12 @@ let htmlTemplateScrollerSelector = "#settings-body > div > div:nth-child(2) > di
 
 let previewBtnSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div > div > div.Polaris-ActionMenu-Actions__ActionsLayout > div:nth-child(2) > button"
 
+let saveChangesSelector = "#center-slot > div > div > div > div > div > div._ButtonContainer_1nw3y_42 > span > button"
+
+let backFromEditPageSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
+
+let backFromPreviewPageSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
+
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -17,7 +23,7 @@ function containsSubstrings(text, substrings) {
 }
 
 async function scrollAndEditElements(scroller,myInput) {
-  let capturedElements =[]
+
   let {
     // remove any that will lead back to the shopify store
     removeSources,
@@ -53,7 +59,7 @@ async function scrollAndEditElements(scroller,myInput) {
         el.innerHTML = el.innerHTML.replace(/{{\s*customer.reset_password_url\s*}}/,forgotPassURL)
         el.innerHTML = el.innerHTML.replace(/{{\s*account_link\s*}}/,accountURL)
         el.innerHTML = el.innerHTML.replace(/{{\s*email_confirmation_url\s*}}/g, "");
-        
+
       }
       if(storeURL){
 
@@ -89,28 +95,46 @@ async function scrollAndEditElements(scroller,myInput) {
     scroller.scrollTop += Math.ceil(scroller.clientHeight/2) * scrollCounter;
     scrollCounter+=1
 
-    await sleep(250); // Adjust sleep time based on the rendering speed
+    await sleep(100); // Adjust sleep time based on the rendering speed
   }
   scroller.scrollTop = 0
-  return Array.from(capturedElements);
 }
 
 async function bulkConvertAllEmails(myInput) {
 
-  let emailTemplates = Array.from(document.querySelectorAll("._SettingsItem__clickableAction_ihwpi_123"))
+  let emailTemplates = Array.from(document.querySelectorAll("._SettingsItem__clickableAction_ihwpi_123"));
 
-  emailTemplates.forEach(async (x,i)=>{
-    if(i ===0){
-      x.click()
-      await sleep(2000)
-      let editBtn = document.querySelector(editBtnSelector)
-      editBtn.click()
+
+  (async () => {
+    for (let i = 0; i < emailTemplates.length; i++) {
+      let x = emailTemplates[i];
+      x.click();
+      await sleep(2000);
+
+      let editBtn = document.querySelector(editBtnSelector);
+      editBtn.click();
       await sleep(3000);
-      await convertEmailTemplate(myInput)
 
+      await convertEmailTemplate(myInput, false);
 
+      let saveChanges = document.querySelector(saveChangesSelector);
+      try {
+        saveChanges.click();
+      } catch (error) {
+
+      }
+      await sleep(3000);
+
+      let backFromEditPage = document.querySelector(backFromEditPageSelector);
+      backFromEditPage.click();
+      await sleep(1000);
+
+      let backFromPreviewPage = document.querySelector(backFromPreviewPageSelector);
+      backFromPreviewPage.click();
+      await sleep(1000);
     }
-  })
+  })();
+
 
 }
 
