@@ -23,7 +23,13 @@ let customerNotificationsSelector = [
 ]
 
 async function setStorageItem(key, value) {
+  try {
+    return await localStorage.setItem(key,JSON.stringify(value))
+  } catch (error) {
+    return await localStorage.setItem(key,value)
+  }
   return new Promise((resolve, reject) => {
+
     chrome.storage.sync.set({ [key]: value }, function() {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError);
@@ -35,6 +41,12 @@ async function setStorageItem(key, value) {
 }
 
 async function getStorageItem(key) {
+  try {
+    let value = localStorage.getItem(key)
+    return JSON.parse(value)
+  } catch (error) {
+    return await localStorage.getItem(key)
+  }
   return new Promise((resolve, reject) => {
     chrome.storage.sync.get([key], function(result) {
       if (chrome.runtime.lastError) {
@@ -136,60 +148,72 @@ async function scrollAndEditElements(scroller,myInput) {
 async function bulkConvertAllEmails(myInput) {
   let emailTemplates = Array.from(document.querySelectorAll("._SettingsItem__clickableAction_ihwpi_123"));
   if(myInput.myIndex > emailTemplates.length){
-    await setStorageItem("jobIsRunning","FALSE")
+    await setStorageItem("replaceShopifyEmailValuesJobIsRunning","FALSE")
   }
   // hold on to this one day the page may not be forced to reload anymore
-  (async () => {
-    for (let i = 0; i < emailTemplates.length; i++) {
-      if(i === myInput.myIndex){
+  try {
+    let x = emailTemplates[myInput.myIndex];
+    x.click();
+  } catch (error) {
+    customerNotificationsSelector.forEach((y,j)=>{
 
-        let x = emailTemplates[i];
-        x.click();
-        await sleep(4000);
-
-        editBtnSelector.forEach((y,j)=>{
-
-          let editBtn = document.querySelector(y);
-          if(editBtn !==null){
-            editBtn.click();
-          }
-        })
-        await sleep(3000);
-
-        await convertEmailTemplate(myInput, false);
-
-        try {
-          let saveChanges = document.querySelector(saveChangesSelector);
-          saveChanges.click();
-        } catch (error) {
-        }
-        await sleep(4000);
-
-        generalNotificationsSelector.forEach((y,j)=>{
-
-          let generalNotifications = document.querySelector(y);
-          if(generalNotifications !==null){
-            generalNotifications.click();
-          }
-        })
-        await sleep(3000);
-
-        customerNotificationsSelector.forEach((y,j)=>{
-
-          let customerNotifications = document.querySelector(y);
-          if(customerNotifications !==null){
-            customerNotifications.click();
-          }
-        })
-
-        myInput.myIndex+=1
-        await setStorageItem("values",myInput)
-        await sleep(1000);
-        window.location.reload()
+      let customerNotifications = document.querySelector(y);
+      if(customerNotifications !==null){
+        customerNotifications.click();
       }
-    }
-  })();
+    })
+  }
 
+  await sleep(4000);
+  try {
+    emailTemplates = Array.from(document.querySelectorAll("._SettingsItem__clickableAction_ihwpi_123"));
+    let x = emailTemplates[myInput.myIndex];
+    x.click();
+    await sleep(4000);
+  } catch (error) {
+
+  }
+
+
+  editBtnSelector.forEach((y,j)=>{
+
+    let editBtn = document.querySelector(y);
+    if(editBtn !==null){
+      editBtn.click();
+    }
+  })
+  await sleep(3000);
+
+  await convertEmailTemplate(myInput, false);
+
+  try {
+    let saveChanges = document.querySelector(saveChangesSelector);
+    saveChanges.click();
+  } catch (error) {
+  }
+  await sleep(4000);
+
+  generalNotificationsSelector.forEach((y,j)=>{
+
+    let generalNotifications = document.querySelector(y);
+    if(generalNotifications !==null){
+      generalNotifications.click();
+    }
+  })
+  await sleep(3000);
+
+  customerNotificationsSelector.forEach((y,j)=>{
+
+    let customerNotifications = document.querySelector(y);
+    if(customerNotifications !==null){
+      customerNotifications.click();
+    }
+  })
+
+  myInput.myIndex+=1
+  await setStorageItem("replaceShopifyEmailValues",myInput)
+  await sleep(5000);
+  window.location.reload()
 
 }
 
@@ -207,21 +231,30 @@ async function convertEmailTemplate(myInput,showPreview=true) {
 chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
 
   if(request.msg.type === "StartJob"){
+    await setStorageItem("replaceShopifyEmailValues",request.msg.value)
     bulkConvertAllEmails(request.msg.value)
-    await setStorageItem("jobIsRunning","TRUE")
+    await setStorageItem("replaceShopifyEmailValuesJobIsRunning","TRUE")
   }
   else if(request.msg.type === "UpdateThisTemplate"){
     convertEmailTemplate(request.msg.value)
   }
   else if(request.msg.type === "StopJob"){
-    await setStorageItem("jobIsRunning","FALSE")
+    await setStorageItem("replaceShopifyEmailValuesJobIsRunning","FALSE")
+  }
+  else if(request.msg.type === "GetInfo"){
+    
+    sendResponse({
+      jobIsRunning:await getStorageItem("replaceShopifyEmailValuesJobIsRunning"),
+      jobInfo:await getStorageItem("replaceShopifyEmailValues"),
+    })
   }
 });
 
-getStorageItem("jobIsRunning")
+getStorageItem("replaceShopifyEmailValuesJobIsRunning")
 .then((jobIsRunning)=>{
+  console.log(jobIsRunning)
   if(jobIsRunning ==="TRUE" ){
-    getStorageItem("values")
+    getStorageItem("replaceShopifyEmailValues")
     .then(async (value)=>{
       await sleep(5000)
       bulkConvertAllEmails(value)

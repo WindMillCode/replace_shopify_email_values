@@ -1,5 +1,11 @@
 async function setStorageItem(key, value) {
+  try {
+    return await localStorage.setItem(key,JSON.stringify(value))
+  } catch (error) {
+    return await localStorage.setItem(key,value)
+  }
   return new Promise((resolve, reject) => {
+
     chrome.storage.sync.set({ [key]: value }, function() {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError);
@@ -11,6 +17,12 @@ async function setStorageItem(key, value) {
 }
 
 async function getStorageItem(key) {
+  try {
+    let value = localStorage.getItem(key)
+    return JSON.parse(value)
+  } catch (error) {
+    return await localStorage.getItem(key)
+  }
   return new Promise((resolve, reject) => {
     chrome.storage.sync.get([key], function(result) {
       if (chrome.runtime.lastError) {
@@ -25,13 +37,18 @@ async function getStorageItem(key) {
 
 async function sendMsgToWebsite(msg) {
 
-  chrome.windows.getCurrent(w => {
-    chrome.tabs.query({active: true, windowId: w.id}, async(tabs) => {
-      const tabId = tabs[0].id;
-      const response = await chrome.tabs.sendMessage(tabId, {msg});
+  return new Promise((res,rej)=>{
+    chrome.windows.getCurrent(w => {
+      chrome.tabs.query({active: true, windowId: w.id}, async(tabs) => {
+        const tabId = tabs[0].id;
+        const response = await chrome.tabs.sendMessage(tabId, {msg});
+        console.log(response)
+        res(response)
 
+      });
     });
-  });
+  })
+
 
 }
 
@@ -67,18 +84,18 @@ function getValues() {
 }
 
 startJob = async ()=>{
-  await setStorageItem("jobIsRunning","TRUE")
+  await setStorageItem("replaceShopifyEmailValuesJobIsRunning","TRUE")
   let value = getValues()
   await setStorageItem("currentIndex",value.myIndex.toString())
   sendMsgToWebsite({
     type:"StartJob",
     value
   })
-  // window.close()
+  window.close()
 }
 
 stopJob = async ()=>{
-  await setStorageItem("jobIsRunning","FALSE")
+  await setStorageItem("replaceShopifyEmailValuesJobIsRunning","FALSE")
   sendMsgToWebsite({
     type:"StopJob",
     value
@@ -102,16 +119,17 @@ window.addEventListener('DOMContentLoaded',async () => {
   document.querySelector("#stopJob").addEventListener("click",stopJob)
   let removeSources = document.getElementById("removeSources");
   removeSources.checked = true;
-  await getStorageItem("values")
-  document.getElementById("myIndex").value = parseInt(values.myIndex);
+
+
   document.getElementById("storeURL").value="https://example.com:4203/account/billing"
   document.getElementById("forgotPassURL").value = "https://example.com:4203/auth/forgot-pass"
   document.getElementById("accountURL").value="https://example.com:4203/account/overview"
-  await getStorageItem("jobIsRunning")
-  if(jobIsRunning ==="TRUE" ){
-    let values =await getStorageItem("values")
-    document.getElementById("myIndex").value = parseInt(values.myIndex)
-  }
+
+  let jobInfo = await sendMsgToWebsite({
+    type:"GetInfo"
+  })
+  debugger
+  document.getElementById("myIndex").value = parseInt(jobInfo.jobInfo.myIndex ??0);
 
 
 
