@@ -34,6 +34,9 @@ function getValues() {
 
     if (myInput) {
       value[option] = myInput.value;
+      if(["myIndex"].includes(option)){
+        value[option] = parseInt(value[option])
+      }
     }
   });
 
