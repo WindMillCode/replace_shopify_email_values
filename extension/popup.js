@@ -67,6 +67,7 @@ window.addEventListener('DOMContentLoaded',async () => {
   document.querySelector("#updateThisTemplate").addEventListener("click",updateThisTemplate)
   let removeSources = document.getElementById("removeSources");
   removeSources.checked = true;
+  document.getElementById("myIndex").value = 0;
   document.getElementById("storeURL").value="https://example.com:4203/account/billing"
   document.getElementById("forgotPassURL").value = "https://example.com:4203/auth/forgot-pass"
   document.getElementById("accountURL").value="https://example.com:4203/account/overview"

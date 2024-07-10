@@ -106,7 +106,7 @@ async function bulkConvertAllEmails(myInput) {
   // TODO figure out how to prevent the page from reloadomg
   (async () => {
     for (let i = 0; i < emailTemplates.length; i++) {
-      if(i === myInput.myIndex){
+      if(i >= myInput.myIndex){
 
         let x = emailTemplates[i];
         x.click();
@@ -127,7 +127,7 @@ async function bulkConvertAllEmails(myInput) {
 
         let generalNotifications = document.querySelector(generalNotificationsSelector);
         generalNotifications.click();
-        await sleep(2000);
+        await sleep(3000);
 
         let customerNotifications = document.querySelector(customerNotificationsSelector);
         customerNotifications.click();
