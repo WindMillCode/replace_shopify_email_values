@@ -1,4 +1,6 @@
-let editBtnSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button"
+let editBtnSelector = ["#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button","#settings-body > div > div.Polaris-Box > div:nth-child(2) > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button",
+  "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button"
+]
 
 
 let htmlTemplateLinesSelector ="div.cm-content.cm-lineWrapping > div.cm-line"
@@ -9,9 +11,11 @@ let previewBtnSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-P
 
 let saveChangesSelector = "#center-slot > div > div > div > div > div > div._ButtonContainer_1nw3y_42 > span > button"
 
-let generalNotificationsSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
+let generalNotificationsSelector = ["#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a","#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--longTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"]
 
-let customerNotificationsSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
+let customerNotificationsSelector = [
+  "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a",
+  "#settings-body > div > div.Polaris-Box > div:nth-child(2) > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"]
 
 async function setStorageItem(key, value) {
   return new Promise((resolve, reject) => {
@@ -125,20 +129,26 @@ async function scrollAndEditElements(scroller,myInput) {
 }
 
 async function bulkConvertAllEmails(myInput) {
-
   let emailTemplates = Array.from(document.querySelectorAll("._SettingsItem__clickableAction_ihwpi_123"));
-
-  // TODO figure out how to prevent the page from reloadomg
+  if(myInput.myIndex > emailTemplates.length){
+    await setStorageItem("jobIsRunning","FALSE")
+  }
+  // hold on to this one day the page may not be forced to reload anymore
   (async () => {
     for (let i = 0; i < emailTemplates.length; i++) {
       if(i === myInput.myIndex){
 
         let x = emailTemplates[i];
         x.click();
-        await sleep(2000);
+        await sleep(4000);
 
-        let editBtn = document.querySelector(editBtnSelector);
-        editBtn.click();
+        editBtnSelector.forEach((y,j)=>{
+
+          let editBtn = document.querySelector(y);
+          if(editBtn !==null){
+            editBtn.click();
+          }
+        })
         await sleep(3000);
 
         await convertEmailTemplate(myInput, false);
@@ -148,14 +158,27 @@ async function bulkConvertAllEmails(myInput) {
           saveChanges.click();
         } catch (error) {
         }
+        await sleep(4000);
+
+        generalNotificationsSelector.forEach((y,j)=>{
+
+          let generalNotifications = document.querySelector(y);
+          if(generalNotifications !==null){
+            generalNotifications.click();
+          }
+        })
         await sleep(3000);
 
-        let generalNotifications = document.querySelector(generalNotificationsSelector);
-        generalNotifications.click();
-        await sleep(3000);
+        customerNotificationsSelector.forEach((y,j)=>{
 
-        let customerNotifications = document.querySelector(customerNotificationsSelector);
-        customerNotifications.click();
+          let customerNotifications = document.querySelector(y);
+          if(customerNotifications !==null){
+            customerNotifications.click();
+          }
+        })
+
+        myInput.myIndex+=1
+        await setStorageItem("values",myInput)
         await sleep(1000);
         window.location.reload()
       }
@@ -181,7 +204,6 @@ chrome.runtime.onMessage.addListener(async function (request, sender, sendRespon
   if(request.msg.type === "StartJob"){
     bulkConvertAllEmails(request.msg.value)
     await setStorageItem("jobIsRunning","TRUE")
-    await setStorageItem("values",request.msg.value)
   }
   else if(request.msg.type === "UpdateThisTemplate"){
     convertEmailTemplate(request.msg.value)
@@ -191,12 +213,17 @@ chrome.runtime.onMessage.addListener(async function (request, sender, sendRespon
   }
 });
 
-window.addEventListener('DOMContentLoaded',async () => {
-  let jobIsRunning = await getStorageItem("jobIsRunning")
+getStorageItem("jobIsRunning")
+.then((jobIsRunning)=>{
   if(jobIsRunning ==="TRUE" ){
-    let value = await getStorageItem("values")
-    value.myIndex += 1
-    bulkConvertAllEmails(value)
+    getStorageItem("values")
+    .then(async (value)=>{
+      await sleep(5000)
+      bulkConvertAllEmails(value)
+    })
+
   }
+
 })
+.catch(console.error)
 

@@ -79,6 +79,10 @@ startJob = async ()=>{
 
 stopJob = async ()=>{
   await setStorageItem("jobIsRunning","FALSE")
+  sendMsgToWebsite({
+    type:"StopJob",
+    value
+  })
 
 }
 
@@ -102,6 +106,12 @@ window.addEventListener('DOMContentLoaded',async () => {
   document.getElementById("storeURL").value="https://example.com:4203/account/billing"
   document.getElementById("forgotPassURL").value = "https://example.com:4203/auth/forgot-pass"
   document.getElementById("accountURL").value="https://example.com:4203/account/overview"
+  await getStorageItem("jobIsRunning")
+  if(jobIsRunning ==="TRUE" ){
+    let values =await getStorageItem("values")
+    document.getElementById("myIndex").value = parseInt(values.myIndex)
+  }
+
 
 
 })
