@@ -102,12 +102,7 @@ window.addEventListener('DOMContentLoaded',async () => {
   document.getElementById("storeURL").value="https://example.com:4203/account/billing"
   document.getElementById("forgotPassURL").value = "https://example.com:4203/auth/forgot-pass"
   document.getElementById("accountURL").value="https://example.com:4203/account/overview"
-  let jobIsRunning = await getStorageItem("jobIsRunning")
-  if(jobIsRunning ==="TRUE" ){
-    let currentIndex = await getStorageItem("currentIndex")
-    document.getElementById("myIndex").value = parseInt(currentIndex)+1
-    startJob()
-  }
+
 
 })
 

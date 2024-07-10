@@ -13,6 +13,31 @@ let generalNotificationsSelector = "#settings-body > div > div.Polaris-Box > div
 
 let customerNotificationsSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
 
+async function setStorageItem(key, value) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({ [key]: value }, function() {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+async function getStorageItem(key) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get([key], function(result) {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(result[key] !== undefined ? result[key] : null);
+      }
+    });
+  });
+}
+
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -106,7 +131,7 @@ async function bulkConvertAllEmails(myInput) {
   // TODO figure out how to prevent the page from reloadomg
   (async () => {
     for (let i = 0; i < emailTemplates.length; i++) {
-      if(i >= myInput.myIndex){
+      if(i === myInput.myIndex){
 
         let x = emailTemplates[i];
         x.click();
@@ -132,6 +157,7 @@ async function bulkConvertAllEmails(myInput) {
         let customerNotifications = document.querySelector(customerNotificationsSelector);
         customerNotifications.click();
         await sleep(1000);
+        window.location.reload()
       }
     }
   })();
@@ -150,14 +176,27 @@ async function convertEmailTemplate(myInput,showPreview=true) {
 
 }
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
 
   if(request.msg.type === "StartJob"){
     bulkConvertAllEmails(request.msg.value)
+    await setStorageItem("jobIsRunning","TRUE")
+    await setStorageItem("values",request.msg.value)
   }
   else if(request.msg.type === "UpdateThisTemplate"){
     convertEmailTemplate(request.msg.value)
   }
+  else if(request.msg.type === "StopJob"){
+    await setStorageItem("jobIsRunning","FALSE")
+  }
 });
 
+window.addEventListener('DOMContentLoaded',async () => {
+  let jobIsRunning = await getStorageItem("jobIsRunning")
+  if(jobIsRunning ==="TRUE" ){
+    let value = await getStorageItem("values")
+    value.myIndex += 1
+    bulkConvertAllEmails(value)
+  }
+})
 
