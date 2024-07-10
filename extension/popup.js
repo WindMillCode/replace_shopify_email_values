@@ -1,3 +1,26 @@
+async function setStorageItem(key, value) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({ [key]: value }, function() {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+async function getStorageItem(key) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get([key], function(result) {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(result[key] !== undefined ? result[key] : null);
+      }
+    });
+  });
+}
 
 
 async function sendMsgToWebsite(msg) {
@@ -43,13 +66,20 @@ function getValues() {
   return value
 }
 
-startJob = ()=>{
-
+startJob = async ()=>{
+  await setStorageItem("jobIsRunning","TRUE")
+  let value = getValues()
+  await setStorageItem("currentIndex",value.myIndex.toString())
   sendMsgToWebsite({
     type:"StartJob",
-    value:getValues()
+    value
   })
-  window.close()
+  // window.close()
+}
+
+stopJob = async ()=>{
+  await setStorageItem("jobIsRunning","FALSE")
+
 }
 
 updateThisTemplate = ()=>{
@@ -65,12 +95,19 @@ updateThisTemplate = ()=>{
 window.addEventListener('DOMContentLoaded',async () => {
   document.querySelector("#startJob").addEventListener("click",startJob)
   document.querySelector("#updateThisTemplate").addEventListener("click",updateThisTemplate)
+  document.querySelector("#stopJob").addEventListener("click",stopJob)
   let removeSources = document.getElementById("removeSources");
   removeSources.checked = true;
   document.getElementById("myIndex").value = 0;
   document.getElementById("storeURL").value="https://example.com:4203/account/billing"
   document.getElementById("forgotPassURL").value = "https://example.com:4203/auth/forgot-pass"
   document.getElementById("accountURL").value="https://example.com:4203/account/overview"
+  let jobIsRunning = await getStorageItem("jobIsRunning")
+  if(jobIsRunning ==="TRUE" ){
+    let currentIndex = await getStorageItem("currentIndex")
+    document.getElementById("myIndex").value = parseInt(currentIndex)+1
+    startJob()
+  }
 
 })
 

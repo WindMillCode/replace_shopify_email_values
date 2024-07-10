@@ -9,9 +9,9 @@ let previewBtnSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-P
 
 let saveChangesSelector = "#center-slot > div > div > div > div > div > div._ButtonContainer_1nw3y_42 > span > button"
 
-let generalNotificationsSelector = "#SettingsDialog > div._DialogChildren_9hr7h_4._DialogChildrenTopBar_9hr7h_9 > section > div > div._SettingsNavContainer_pyit9_45 > div > div > div > nav > ul > li:nth-child(15) > div > a"
+let generalNotificationsSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
 
-let customerNotificationsSelector = "._SettingsItem_ihwpi_31._SettingsItem--clickable_ihwpi_61"
+let customerNotificationsSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
