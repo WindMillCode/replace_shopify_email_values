@@ -21,6 +21,10 @@
         flex: 0 0 50%;
         display: flex;
       }
+      .Pod3{
+        display: flex;
+        flex-direction: column;
+      }
       input,button {
         cursor: pointer;
       }
@@ -78,7 +82,7 @@
       <br/>
       <div>
         <label for="storeURL">Store URL:</label>
-        <input  id="storeURL" name="storeURL"  />
+        <input  id="storeURL" name="storeURL"  value="https://example.com:4203/account/billing"  />
       </div>
       <br/>
       <div>
@@ -87,7 +91,10 @@
       </div>
     </div>
     <div class="Pod1">
-      <button id="startJob">Start Job</button>
+      <div class="Pod3">
+        <button id="startJob">Start Job</button>
+        <button id="updateThisTemplate">Update This Template</button>
+      </div>
     </div>
   </div>
   <script src="popup.js"></script>

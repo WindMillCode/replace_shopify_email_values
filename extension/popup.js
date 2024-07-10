@@ -39,10 +39,37 @@ startJob = ()=>{
   })
 }
 
+updateThisTemplate = ()=>{
+  const mediaOptions = [
+    "removeSources",
+    "showContactEmail"
+  ];
+  value = {}
+  mediaOptions.forEach(option => {
+    let checkbox = document.getElementById(option);
+    value[option] = checkbox.checked;
+  });
+  const inputs = [
+    "storeURL",
+    "storeURLText"
+  ];
+  inputs.forEach(option => {
+    let myInput = document.getElementById(option);
+
+    if (myInput) {
+      value[option] =myInput.value
+    }
+  });
+  sendMsgToWebsite({
+    type:"UpdateThisTemplate",
+    value
+  })
+}
+
 
 window.addEventListener('DOMContentLoaded',async () => {
-  let btn = document.querySelector("#startJob")
-  btn.addEventListener("click",startJob)
+  document.querySelector("#startJob").addEventListener("click",startJob)
+  document.querySelector("#updateThisTemplate").addEventListener("click",updateThisTemplate)
   let removeSources = document.getElementById("removeSources");
   removeSources.checked = true;
 
