@@ -1,0 +1,11 @@
+did not work for
+"Ready for local pickup"
+"Edit Payment error"
+"Edit POS email to customer"
+"Edit POS exchange receipt"
+"Edit POS exchange V2 receipt"
+"Edit Return created"
+"Edit Return request received"
+"Edit Return request approved"
+"Edit Return request declined"
+"Edit B2B location update payment method"

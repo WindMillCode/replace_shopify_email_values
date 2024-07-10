@@ -23,11 +23,13 @@ async function scrollAndEditElements(scroller,myInput) {
     removeSources,
     showContactEmail,
     storeURL,
-    storeURLText
+    storeURLText,
+    forgotPassURL,
+    accountURL
   } = myInput
 
   let scrollCounter = 0
-  while (scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight-1) {
+  while (scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight-3) {
     let elements = Array.from(document.querySelectorAll(htmlTemplateLinesSelector));
     elements.forEach((el) =>{
 
@@ -35,10 +37,38 @@ async function scrollAndEditElements(scroller,myInput) {
         // check line 167
 
         el.innerHTML = el.innerHTML.replace("View your order","")
+        el.innerHTML = el.innerHTML.replace("View payment information","")
+        el.innerHTML = el.innerHTML.replace("Confirm order","")
+        el.innerHTML = el.innerHTML.replace("Visit online store",storeURLText)
+        el.innerHTML = el.innerHTML.replace("Items in your cart","")
         el.innerHTML = el.innerHTML.replace(/{{\s*order_status_url\s*}}/g, "");
+        el.innerHTML = el.innerHTML.replace("Return to cart","")
+        el.innerHTML = el.innerHTML.replace("Continue to checkiyt","")
+        if (/Come back or visit/.test(el.innerText)) {
+          console.log(el.innerHTML)
+          el.innerHTML = el.innerHTML.replace("or", "");
+          el.innerHTML = el.innerHTML.replace("Come back or visit","")
+          el.innerHTML = el.innerHTML.replace("our online store","")
+        }
+        el.innerHTML = el.innerHTML.replace(/{{\s*customer.reset_password_url\s*}}/,forgotPassURL)
+        el.innerHTML = el.innerHTML.replace(/{{\s*account_link\s*}}/,accountURL)
+        el.innerHTML = el.innerHTML.replace(/{{\s*email_confirmation_url\s*}}/g, "");
+        
       }
       if(storeURL){
+
         el.innerHTML = el.innerHTML.replace(/{{\s*shop\.url\s*}}/g, storeURL);
+        // TODO gift card url
+        el.innerHTML = el.innerHTML.replace(/{{\s*gift_card\.url\s*}}/g, storeURL);
+
+        el.innerHTML = el.innerHTML.replace(/{{\s*checkout_payment_collection_url\s*}}/g, storeURL);
+        el.innerHTML = el.innerHTML.replace(/{{\s*unsubscribe_url\s*}}/g, storeURL);
+        el.innerHTML = el.innerHTML.replace(/{{\s*invoice_url\s*}}/g, storeURL);
+        el.innerHTML = el.innerHTML.replace(/{{\s*checkout_url\s*}}/g, storeURL);
+        // keep this one
+        // el.innerHTML = el.innerHTML.replace(/{{\s*order_status_url\s*}}/g, storeURL);
+
+
       }
       if(storeURLText){
         el.innerHTML = el.innerHTML.replace("Visit our store", storeURLText);
@@ -46,14 +76,22 @@ async function scrollAndEditElements(scroller,myInput) {
           el.innerHTML = el.innerHTML.replace("or", "");
         }
       }
+
+      if(!showContactEmail){
+        el.innerHTML = el.innerHTML.replace(/{{\s*shop\.email\s*}}/g, "");
+        el.innerHTML = el.innerHTML.replace("or contact us at", "");
+        el.innerHTML = el.innerHTML.replace("Let us know", "Reply to this email");
+      }
     });
 
     scroller.scrollTop = 0
+    await sleep(1);
     scroller.scrollTop += Math.ceil(scroller.clientHeight/2) * scrollCounter;
     scrollCounter+=1
 
-    await sleep(150); // Adjust sleep time based on the rendering speed
+    await sleep(250); // Adjust sleep time based on the rendering speed
   }
+  scroller.scrollTop = 0
   return Array.from(capturedElements);
 }
 
@@ -76,12 +114,14 @@ async function bulkConvertAllEmails(myInput) {
 
 }
 
-async function convertEmailTemplate(myInput) {
+async function convertEmailTemplate(myInput,showPreview=true) {
 
   let htmlTemplateScroller  = document.querySelector(htmlTemplateScrollerSelector)
   await scrollAndEditElements(htmlTemplateScroller,myInput)
-  let previewBtn = document.querySelector(previewBtnSelector)
-  previewBtn.click()
+  if(showPreview){
+    let previewBtn = document.querySelector(previewBtnSelector)
+    previewBtn.click()
+  }
 
 }
 

@@ -12,58 +12,49 @@ async function sendMsgToWebsite(msg) {
 
 }
 
-startJob = ()=>{
+function getValues() {
   const mediaOptions = [
     "removeSources",
     "showContactEmail"
   ];
-  value = {}
+  value = {};
   mediaOptions.forEach(option => {
     let checkbox = document.getElementById(option);
     value[option] = checkbox.checked;
   });
   const inputs = [
     "storeURL",
-    "storeURLText"
+    "storeURLText",
+    "forgotPassURL",
+    "accountURL"
   ];
   inputs.forEach(option => {
     let myInput = document.getElementById(option);
 
     if (myInput) {
-      value[option] =myInput.value
+      value[option] = myInput.value;
     }
   });
+
+  return value
+}
+
+startJob = ()=>{
+
   sendMsgToWebsite({
     type:"StartJob",
-    value
+    value:getValues()
   })
+  window.close()
 }
 
 updateThisTemplate = ()=>{
-  const mediaOptions = [
-    "removeSources",
-    "showContactEmail"
-  ];
-  value = {}
-  mediaOptions.forEach(option => {
-    let checkbox = document.getElementById(option);
-    value[option] = checkbox.checked;
-  });
-  const inputs = [
-    "storeURL",
-    "storeURLText"
-  ];
-  inputs.forEach(option => {
-    let myInput = document.getElementById(option);
 
-    if (myInput) {
-      value[option] =myInput.value
-    }
-  });
   sendMsgToWebsite({
     type:"UpdateThisTemplate",
-    value
+    value:getValues()
   })
+  window.close()
 }
 
 
@@ -72,5 +63,10 @@ window.addEventListener('DOMContentLoaded',async () => {
   document.querySelector("#updateThisTemplate").addEventListener("click",updateThisTemplate)
   let removeSources = document.getElementById("removeSources");
   removeSources.checked = true;
+  document.getElementById("storeURL").value="https://example.com:4203/account/billing"
+  document.getElementById("forgotPassURL").value = "https://example.com:4203/auth/forgot-pass"
+  document.getElementById("accountURL").value="https://example.com:4203/account/overview"
 
 })
+
+

@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 
@@ -209,10 +210,7 @@ func SetupEnvironmentToRunFlaskApp(env string) (string, error) {
 	envVarsFile := utils.ShowMenu(cliInfo, nil)
 
 	// Get the Python version input
-	pythonVersion := utils.GetInputFromStdin(utils.GetInputFromStdinStruct{
-		Prompt:  []string{"Provide a Python version for pyenv to use"},
-		Default: settings.ExtensionPack.PythonVersion0,
-	})
+	SetPythonEnvironment(settings.ExtensionPack.PythonVersion0)
 
 	// Execute the helper script to set environment variables
 	utils.CDToLocation(workspaceFolder)
@@ -242,8 +240,16 @@ func SetupEnvironmentToRunFlaskApp(env string) (string, error) {
 		os.Setenv(key, value)
 	}
 
-	// Set the Python version if provided
-	if pythonVersion != "" {
+	return flaskAppFolder, nil
+}
+
+func SetPythonEnvironment(myDefault string){
+
+	pythonVersion := utils.GetInputFromStdin(utils.GetInputFromStdinStruct{
+		Prompt:  []string{"Provide a Python version for pyenv to use type 'Skip' to stay with the existing version"},
+		Default: myDefault,
+	})
+	if  !slices.Contains([]string{"", "Skip"}, pythonVersion){
 		_, err := exec.LookPath("pyenv")
 		if err == nil{
 			utils.RunCommand("pyenv", []string{"global", pythonVersion})
@@ -252,23 +258,67 @@ func SetupEnvironmentToRunFlaskApp(env string) (string, error) {
 		}
 	}
 
-	return flaskAppFolder, nil
 }
-
 func SetNodeJSEnvironment(myDefault string){
 	nodeJSVersion := utils.GetInputFromStdin(
 		utils.GetInputFromStdinStruct{
-			Prompt: []string{"provide the nodejs version"},
+			Prompt: []string{"provide the nodejs version is type 'Skip' to stay with the existing version"},
 			Default: myDefault,
 		},
 	)
 	_, err := exec.LookPath("nvm")
 	if err == nil{
-		utils.RunCommand("nvm",[]string{"use",nodeJSVersion})
+		if(nodeJSVersion != "Skip"){
+			utils.RunCommand("nvm",[]string{"use",nodeJSVersion})
+		}
 	} else{
-		fmt.Println("nvm seems not to be install in your system please install or set manually")
+		fmt.Println("nvm seems not to be installed in your system please install or set manually")
 	}
 }
+
+func SetJavaEnvironment(){
+
+	_, err := exec.LookPath("jvms")
+	if err == nil{
+
+	} else{
+		fmt.Println("jvms seems not to be installed in your system please install or set manually")
+		return;
+	}
+	output, _ := utils.RunCommandWithOptions(utils.CommandOptions{
+		Command:   "jvms",
+		Args:      []string{"ls"},
+		GetOutput: true,
+	})
+	// Split the output into lines
+	lines := strings.Split(output, "\n")
+	var jdks []string
+
+	// Iterate over the lines and extract JDK names
+	for _, line := range lines {
+		trimmedLine := strings.TrimSpace(line)
+		if len(trimmedLine) > 0 && !strings.HasPrefix(trimmedLine, "Installed jdk") {
+			// Remove the leading index and asterisk if present
+			parts := strings.Split(trimmedLine, ")")
+			if len(parts) > 1 {
+				jdk := strings.TrimSpace(parts[1])
+				// Remove the leading asterisk if present
+				jdk = strings.TrimPrefix(jdk, "*")
+				jdks = append(jdks, strings.TrimSpace(jdk))
+			}
+		}
+	}
+	cliInfo := utils.ShowMenuModel{
+		Prompt: "select the java version to use",
+		Choices:append(jdks,"Skip"),
+	}
+	javaVersion := utils.ShowMenu(cliInfo,nil)
+	if(javaVersion != "Skip"){
+		utils.RunElevatedCommand("jvms",[]string{"switch",javaVersion})
+	}
+
+}
+
 
 func GetGoExecutable() string {
 	cliInfo := utils.ShowMenuModel{

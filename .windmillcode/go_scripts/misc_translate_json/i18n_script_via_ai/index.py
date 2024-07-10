@@ -7,10 +7,11 @@ The dest_json has the same key paths as the source_json but not in the same orde
 worry about the order of the keys
 """
 
-import shutil
+import random
 import sys
-import tempfile
-import threading
+from threading import Thread
+
+from list_to_dict_utils import  generate_key_map, get_all_keys,  longest_list_length, replace_lists_with_mapped_objects, revert_mapped_objects_to_lists
 
 def local_deps(platform=sys.platform):
   if platform == 'win32':
@@ -24,7 +25,7 @@ local_deps()
 from openai import OpenAI
 import argparse
 from enum import Enum
-import json
+from json import dump, dumps,load, loads
 import os
 import re
 import pprint
@@ -35,12 +36,31 @@ pp = pprint.PrettyPrinter(indent=2, compact=False, width=1)
 
 # Guides chat-gpt
 def translate_list(source_array, source_lang, dest_lang,translate = lambda x,y,z:"translated_value"):
-    # This function is a placeholder for the actual translation function
-    return [translate(source_lang,dest_lang,item) for item in source_array]
+  # This function is a placeholder for the actual translation function
+  return [translate(source_lang,dest_lang,item) for item in source_array]
 
 def was_translation_successful(failure,dest_array):
-    failure = any(is_from_source_lang(item) for item in dest_array)
-    return failure
+  failure = any(is_from_source_lang(item) for item in dest_array)
+  return failure
+
+
+
+
+def remove_random_item(json_obj, key_prob=0.7, list_prob=0.7):
+  if isinstance(json_obj, dict):
+    keys = list(json_obj.keys())
+    if keys and random.random() < key_prob:
+      random_key = random.choice(keys)
+      json_obj.pop(random_key)
+    for key in list(json_obj.keys()):  # Use list to avoid RuntimeError due to changing dict size during iteration
+      remove_random_item(json_obj[key], key_prob, list_prob)
+  elif isinstance(json_obj, list):
+    if json_obj and random.random() < list_prob:
+      random_index = random.choice(range(len(json_obj)))
+      json_obj.pop(random_index)
+    for item in json_obj:
+      remove_random_item(item, key_prob, list_prob)
+  return json_obj
 
 class OpenAIModelChatCompletionEnum(Enum):
   GPT_35_TURBO_16K ={
@@ -68,8 +88,6 @@ class OpenAIModelChatCompletionEnum(Enum):
     "max_tokens":int(4096),
     "sleep_time":60
   }
-
-
 
 class OpenAIManager():
   model = OpenAIModelChatCompletionEnum.GPT_3_5_TURBO_0125
@@ -133,7 +151,6 @@ class OpenAIManager():
     }
   ]
 
-
   language_codes = {
     'zh': 'Mandarin Chinese',
     'ja': 'Japanese',
@@ -155,9 +172,6 @@ class OpenAIManager():
       self.init = True
       self.client = OpenAI(api_key=api_key)
       self.retry_ask_chatgpt = retry_ask_chatgpt
-
-
-
 
   def _process_json_for_null_values(self, source, dest, current_path):
     if isinstance(dest, dict):
@@ -199,9 +213,9 @@ class OpenAIManager():
           self._add_value_from_source(value, i, new_path)
 
   def _map_translated_values_back(self, dest_json):
-      for group in self.chunked_missing_groups:
-          for result, path in zip(group["result"], group["value_paths"]):
-              self._set_value_by_path(dest_json, path.split('.'), result)
+    for group in self.chunked_missing_groups:
+      for result, path in zip(group["result"], group["value_paths"]):
+        self._set_value_by_path(dest_json, path.split('.'), result)
 
   def _set_value_by_path(self, obj, path, value):
       for i, key in enumerate(path):
@@ -227,6 +241,8 @@ class OpenAIManager():
                       obj.append(None)
                   obj[key] = value
               else:
+                  if obj == None:
+                    print(obj)
                   obj[key] = value
 
 
@@ -245,7 +261,7 @@ class OpenAIManager():
       )
 
       # print(chunk)
-      fn_args = json.loads(response.choices[0].message.tool_calls[0].function.arguments)
+      fn_args = loads(response.choices[0].message.tool_calls[0].function.arguments)
       return fn_args
     except  Exception as e:
       print(e)
@@ -290,7 +306,7 @@ class OpenAIManager():
       current_length = 0
 
       for value, path in zip(self.all_missing_values, self.all_missing_value_paths):
-          value_str = json.dumps(value)
+          value_str = dumps(value)
           value_length = len(value_str)
 
           if current_length + value_length > max_length_per_chunk:
@@ -314,7 +330,7 @@ class OpenAIManager():
 
 
 
-  def translate_and_map(self, dest_json, source_lang, dest_lang):
+  def translate_and_map(self, dest_json, source_lang, dest_lang,key_map):
 
     @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(10))
     def translate(group):
@@ -342,13 +358,14 @@ class OpenAIManager():
 
     threads = []
     for group in self.chunked_missing_groups:
-      # translate(group)
-      thread = threading.Thread(target=translate, args=(group,))
+      # threads.append(translate(group))
+      thread = Thread(target=translate, args=(group,))
       threads.append(thread)
       thread.start()
 
     for thread in tqdm(threads, desc="Translating {}".format(dest_lang)):
       thread.join()
+
 
     self._map_translated_values_back(dest_json)
 
@@ -363,7 +380,7 @@ class OpenAIManager():
       try:
           # Attempt to write the new content to the dest_file
           with open(dest_file, 'w', encoding='utf-8') as file:
-              json.dump(dest_json, file, indent=2, ensure_ascii=False)
+              dump(dest_json, file, indent=2, ensure_ascii=False)
       except Exception as e:
           # If an error occurs, log the error and write back the original content if it exists
           print(f"Error writing to {dest_file}: {e}")
@@ -380,10 +397,28 @@ class OpenAIManager():
 
 
   def update_dest_language(self, source_json, dest_json, source_lang, dest_lang, abs_path_dest_file):
+
+
+    existing_keys = get_all_keys(source_json)
+    existing_keys.update( get_all_keys(dest_json))
+    longest_list = max(
+      longest_list_length(source_json),
+      longest_list_length(dest_json)
+    )  # Ensure we do not use any existing keys
+    key_map = generate_key_map(longest_list,existing_keys)
+
+    source_json = replace_lists_with_mapped_objects(source_json, key_map)
+    dest_json = replace_lists_with_mapped_objects(dest_json, key_map)
+
     dest_json =self.mirror(source_json, dest_json)
+
     self.gather_values_for_translation(source_json, dest_json)
+
     self.chunk_values_based_on_tokens()
-    self.translate_and_map(dest_json, source_lang, dest_lang)
+
+    self.translate_and_map(dest_json, source_lang, dest_lang,key_map)
+
+    dest_json = revert_mapped_objects_to_lists(dest_json, key_map)
     self.safe_write_to_dest_file(dest_json, abs_path_dest_file)
 
   def update_translations(self, dev_obj):
@@ -394,7 +429,9 @@ class OpenAIManager():
     source_json = {}
     source_lang = self.language_codes.get(source_file.split(".")[0])
     with open(abs_path_source_file, encoding="utf-8") as f:
-      source_json = json.load(f)
+      source_json = load(f)
+    print(dev_obj["remove_json_keys"])
+
 
     threads = []
     with tqdm(total=len(lang_codes), desc="Updating Translations") as pbar:
@@ -408,40 +445,50 @@ class OpenAIManager():
           with open(abs_path_dest_file, 'w') as e:
             e.write("{}")
         with open(abs_path_dest_file, encoding="utf-8") as g:
-          dest_json = json.load(g)
+          dest_json = load(g)
 
+        if dev_obj["remove_json_keys"] == "TRUE":
+
+          dest_json = remove_random_item(dest_json)
+          with open(abs_path_dest_file, encoding="utf-8",mode="w") as f:
+            dump(dest_json,f)
+
+        # TODO
+        # threads.append()
         self.update_dest_language(source_json, dest_json, source_lang, dest_lang, abs_path_dest_file)
-        # thread = threading.Thread(target=self.update_dest_language, args=(source_json, dest_json, source_lang, dest_lang, abs_path_dest_file))
+
+        #
+        # thread = Thread(target=self.update_dest_language, args=(source_json, dest_json, source_lang, dest_lang, abs_path_dest_file))
         # threads.append(thread)
         # thread.start()
+
 
         pbar.update(1)
 
     for thread in threads:
       thread.join()
 
-
-
-
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-                        prog='Translation Script',
-                        description='translates angular 18n script',
-                        epilog='Text at the bottom of help')
-    parser.add_argument('-l','--location')
-    parser.add_argument('-s','--source-file')
-    parser.add_argument('-d','--dest-file',default="{}.json")
-    parser.add_argument('-c','--lang-codes')
-    args = parser.parse_args()
-    abs_path_source_file = os.path.join(os.getcwd(),args.location,args.source_file)
+  parser = argparse.ArgumentParser(
+    prog='Translation Script',
+    description='translates angular 18n script',
+    epilog='Text at the bottom of help'
+  )
+  parser.add_argument('-l','--location')
+  parser.add_argument('-s','--source-file')
+  parser.add_argument('-d','--dest-file',default="{}.json")
+  parser.add_argument('-c','--lang-codes')
+  parser.add_argument('-r','--remove-json-keys')
+  args = parser.parse_args()
+  abs_path_source_file = os.path.join(os.getcwd(),args.location,args.source_file)
 
-    lang_codes = args.lang_codes.split(",")
-    params= {
-        "lang_codes":lang_codes,
-        "source_file":args.source_file,
-        "dest_file":args.dest_file,
-        "abs_path_source_file":abs_path_source_file
-    }
-    mngr = OpenAIManager(os.environ.get("OPENAI_API_KEY_0"))
-    mngr.update_translations(params)
+  lang_codes = args.lang_codes.split(",")
+  params= {
+    "lang_codes":lang_codes,
+    "source_file":args.source_file,
+    "dest_file":args.dest_file,
+    "remove_json_keys":args.remove_json_keys,
+    "abs_path_source_file":abs_path_source_file
+  }
+  mngr = OpenAIManager(os.environ.get("OPENAI_API_KEY_0"))
+  mngr.update_translations(params)

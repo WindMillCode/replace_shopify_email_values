@@ -3,23 +3,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class WMLTemplatePageRiverpodProviderValue {
-  WMLTemplatePageRiverpodProviderValue copyWith() {
-    return WMLTemplatePageRiverpodProviderValue();
+class WMLTemplatePageWidgetRiverpodProviderValue {
+  WMLTemplatePageWidgetRiverpodProviderValue copyWith() {
+    return WMLTemplatePageWidgetRiverpodProviderValue();
   }
 }
 
-var WMLTemplatePageRiverpodProviderInstance = WMLTemplatePageRiverpodProviderValue();
+var WMLTemplatePageWidgetRiverpodProviderInstance = WMLTemplatePageWidgetRiverpodProviderValue();
 
-class WMLTemplatePageRiverpodNotifier
-    extends Notifier<WMLTemplatePageRiverpodProviderValue> {
+class WMLTemplatePageWidgetRiverpodNotifier
+    extends Notifier<WMLTemplatePageWidgetRiverpodProviderValue> {
   @override
-  WMLTemplatePageRiverpodProviderValue build() {
-    return WMLTemplatePageRiverpodProviderInstance;
+  WMLTemplatePageWidgetRiverpodProviderValue build() {
+    return WMLTemplatePageWidgetRiverpodProviderInstance;
   }
 }
 
-final WMLTemplatePageRiverpodProvider = NotifierProvider<
-    WMLTemplatePageRiverpodNotifier, WMLTemplatePageRiverpodProviderValue>(() {
-  return WMLTemplatePageRiverpodNotifier();
+final WMLTemplatePageWidgetRiverpodProvider = NotifierProvider<
+    WMLTemplatePageWidgetRiverpodNotifier, WMLTemplatePageWidgetRiverpodProviderValue>(() {
+  return WMLTemplatePageWidgetRiverpodNotifier();
 });

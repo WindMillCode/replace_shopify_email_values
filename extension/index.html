@@ -7,18 +7,23 @@
         width: 500px;
 
       }
+
+      input{
+        width: 100%;
+      }
       .Pod0{
+        flex: 0 0 60%;
         display: flex;
         flex-direction: column;
       }
       .Pod1{
-        flex: 0 0 50%;
+        flex: 0 0 40%;
         display: flex;
         justify-content: flex-end;
         align-items: flex-end;
       }
       .Pod2{
-        flex: 0 0 50%;
+
         display: flex;
       }
       .Pod3{
@@ -82,13 +87,24 @@
       <br/>
       <div>
         <label for="storeURL">Store URL:</label>
-        <input  id="storeURL" name="storeURL"  value="https://example.com:4203/account/billing"  />
+        <input  id="storeURL" name="storeURL"   />
       </div>
-      <br/>
+
       <div>
         <label for="storeURLText">Store URL Text:</label>
         <input  id="storeURLText" name="storeURLText" value="Return to App" />
       </div>
+      <br/>
+      <div>
+        <label for="forgotPassURL">Forgot Password URL:</label>
+        <input  id="forgotPassURL" name="forgotPassURL"   />
+      </div>
+      <br/>
+      <div>
+        <label for="accountURL">Account URL:</label>
+        <input  id="accountURL" name="accountURL"  />
+      </div>
+      <br/>
     </div>
     <div class="Pod1">
       <div class="Pod3">
