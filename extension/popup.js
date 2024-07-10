@@ -26,7 +26,8 @@ function getValues() {
     "storeURL",
     "storeURLText",
     "forgotPassURL",
-    "accountURL"
+    "accountURL",
+    "myIndex"
   ];
   inputs.forEach(option => {
     let myInput = document.getElementById(option);

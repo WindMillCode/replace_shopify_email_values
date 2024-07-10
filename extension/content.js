@@ -9,10 +9,9 @@ let previewBtnSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-P
 
 let saveChangesSelector = "#center-slot > div > div > div > div > div > div._ButtonContainer_1nw3y_42 > span > button"
 
-let backFromEditPageSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
+let generalNotificationsSelector = "#SettingsDialog > div._DialogChildren_9hr7h_4._DialogChildrenTopBar_9hr7h_9 > section > div > div._SettingsNavContainer_pyit9_45 > div > div > div > nav > ul > li:nth-child(15) > div > a"
 
-let backFromPreviewPageSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
-
+let customerNotificationsSelector = "._SettingsItem_ihwpi_31._SettingsItem--clickable_ihwpi_61"
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -104,34 +103,36 @@ async function bulkConvertAllEmails(myInput) {
 
   let emailTemplates = Array.from(document.querySelectorAll("._SettingsItem__clickableAction_ihwpi_123"));
 
-
+  // TODO figure out how to prevent the page from reloadomg
   (async () => {
     for (let i = 0; i < emailTemplates.length; i++) {
-      let x = emailTemplates[i];
-      x.click();
-      await sleep(2000);
+      if(i === myInput.myIndex){
 
-      let editBtn = document.querySelector(editBtnSelector);
-      editBtn.click();
-      await sleep(3000);
+        let x = emailTemplates[i];
+        x.click();
+        await sleep(2000);
 
-      await convertEmailTemplate(myInput, false);
+        let editBtn = document.querySelector(editBtnSelector);
+        editBtn.click();
+        await sleep(3000);
 
-      let saveChanges = document.querySelector(saveChangesSelector);
-      try {
-        saveChanges.click();
-      } catch (error) {
+        await convertEmailTemplate(myInput, false);
 
+        try {
+          let saveChanges = document.querySelector(saveChangesSelector);
+          saveChanges.click();
+        } catch (error) {
+        }
+        await sleep(3000);
+
+        let generalNotifications = document.querySelector(generalNotificationsSelector);
+        generalNotifications.click();
+        await sleep(2000);
+
+        let customerNotifications = document.querySelector(customerNotificationsSelector);
+        customerNotifications.click();
+        await sleep(1000);
       }
-      await sleep(3000);
-
-      let backFromEditPage = document.querySelector(backFromEditPageSelector);
-      backFromEditPage.click();
-      await sleep(1000);
-
-      let backFromPreviewPage = document.querySelector(backFromPreviewPageSelector);
-      backFromPreviewPage.click();
-      await sleep(1000);
     }
   })();
 
