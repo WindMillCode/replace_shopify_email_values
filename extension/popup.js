@@ -102,7 +102,8 @@ window.addEventListener('DOMContentLoaded',async () => {
   document.querySelector("#stopJob").addEventListener("click",stopJob)
   let removeSources = document.getElementById("removeSources");
   removeSources.checked = true;
-  document.getElementById("myIndex").value = 0;
+  await getStorageItem("values")
+  document.getElementById("myIndex").value = parseInt(values.myIndex);
   document.getElementById("storeURL").value="https://example.com:4203/account/billing"
   document.getElementById("forgotPassURL").value = "https://example.com:4203/auth/forgot-pass"
   document.getElementById("accountURL").value="https://example.com:4203/account/overview"

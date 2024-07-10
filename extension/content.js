@@ -1,4 +1,6 @@
-let editBtnSelector = ["#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button","#settings-body > div > div.Polaris-Box > div:nth-child(2) > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button",
+let editBtnSelector = [
+  "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button",
+  "#settings-body > div > div.Polaris-Box > div:nth-child(2) > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button",
   "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button"
 ]
 
@@ -11,11 +13,14 @@ let previewBtnSelector = "#settings-body > div > div.Polaris-Box > div.Polaris-P
 
 let saveChangesSelector = "#center-slot > div > div > div > div > div > div._ButtonContainer_1nw3y_42 > span > button"
 
-let generalNotificationsSelector = ["#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a","#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--longTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"]
+let generalNotificationsSelector = [
+  "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a","#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--longTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
+]
 
 let customerNotificationsSelector = [
   "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a",
-  "#settings-body > div > div.Polaris-Box > div:nth-child(2) > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"]
+  "#settings-body > div > div.Polaris-Box > div:nth-child(2) > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
+]
 
 async function setStorageItem(key, value) {
   return new Promise((resolve, reject) => {
