@@ -22,6 +22,14 @@ let customerNotificationsSelector = [
   "#settings-body > div > div.Polaris-Box > div:nth-child(2) > div > div.Polaris-Page-Header__BreadcrumbWrapper > div > a"
 ]
 
+let revertToDefaultBtnSelector = [
+  "#settings-body > div > div:nth-child(2) > div > div > form > div > div:nth-child(2) > div > div > div:nth-child(2) > button"
+]
+
+let confirmRevertBtnSelector = [
+  "#PolarisPortalsContainer > div:nth-child(14) > div:nth-child(1) > div > div > div > div.Polaris-Modal-Dialog__Modal > div.Polaris-Modal-Footer > div > div > div > div.Polaris-InlineStack > button.Polaris-Button.Polaris-Button--pressable.Polaris-Button--variantPrimary.Polaris-Button--sizeMedium.Polaris-Button--textAlignCenter.Polaris-Button--toneCritical"
+]
+
 async function setStorageItem(key, value) {
   try {
     return await localStorage.setItem(key,JSON.stringify(value))
@@ -145,12 +153,44 @@ async function scrollAndEditElements(scroller,myInput) {
   scroller.scrollTop = 0
 }
 
-async function bulkConvertAllEmails(myInput) {
+async function convertEmailTemplate(myInput,showPreview=true) {
+
+  let htmlTemplateScroller  = document.querySelector(htmlTemplateScrollerSelector)
+  await scrollAndEditElements(htmlTemplateScroller,myInput)
+  if(showPreview){
+    let previewBtn = document.querySelector(previewBtnSelector)
+    previewBtn.click()
+  }
+
+}
+
+async function resetEmailTemplate(){
+  revertToDefaultBtnSelector.forEach((y,j)=>{
+
+    let revertToDefaultBtn = document.querySelector(y);
+    if(revertToDefaultBtn !==null){
+      revertToDefaultBtn.click();
+    }
+  })
+  await sleep(3000);
+
+  confirmRevertBtnSelector.forEach((y,j)=>{
+
+    let confirmRevertBtn = document.querySelector(y);
+    if(confirmRevertBtn !==null){
+      confirmRevertBtn.click();
+    }
+  })
+  await sleep(3000);
+}
+
+async function runJob(myInput,type) {
   let emailTemplates = Array.from(document.querySelectorAll("._SettingsItem__clickableAction_ihwpi_123"));
   // lucky guess there has to be at least 30 different emails shopify can send out
   if(myInput.myIndex > emailTemplates.length && emailTemplates.length>30){
     await setStorageItem("replaceShopifyEmailValuesJobIsRunning","FALSE")
   }
+
   try {
     let x = emailTemplates[myInput.myIndex];
     x.click();
@@ -174,7 +214,6 @@ async function bulkConvertAllEmails(myInput) {
 
   }
 
-
   editBtnSelector.forEach((y,j)=>{
 
     let editBtn = document.querySelector(y);
@@ -183,13 +222,19 @@ async function bulkConvertAllEmails(myInput) {
     }
   })
   await sleep(3000);
-
-  await convertEmailTemplate(myInput, false);
+  debugger
+  if(type ==="bulkConvertAllEmails"){
+    await convertEmailTemplate(myInput, false);
+  }
+  else{
+    await resetEmailTemplate()
+  }
 
   try {
     let saveChanges = document.querySelector(saveChangesSelector);
     saveChanges.click();
   } catch (error) {
+
   }
   await sleep(4000);
 
@@ -217,37 +262,33 @@ async function bulkConvertAllEmails(myInput) {
 
 }
 
-async function convertEmailTemplate(myInput,showPreview=true) {
 
-  let htmlTemplateScroller  = document.querySelector(htmlTemplateScrollerSelector)
-  await scrollAndEditElements(htmlTemplateScroller,myInput)
-  if(showPreview){
-    let previewBtn = document.querySelector(previewBtnSelector)
-    previewBtn.click()
-  }
-
-}
 
 chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
 
   if(request.msg.type === "StartJob"){
     await setStorageItem("replaceShopifyEmailValues",request.msg.value)
-    bulkConvertAllEmails(request.msg.value)
     await setStorageItem("replaceShopifyEmailValuesJobIsRunning","TRUE")
+    runJob(request.msg.value,"bulkConvertAllEmails")
   }
   else if(request.msg.type === "UpdateThisTemplate"){
     convertEmailTemplate(request.msg.value)
   }
   else if(request.msg.type === "StopJob"){
     await setStorageItem("replaceShopifyEmailValuesJobIsRunning","FALSE")
+    window.location.reload()
   }
   else if(request.msg.type === "GetInfo"){
-
     sendResponse({
       jobIsRunning:await getStorageItem("replaceShopifyEmailValuesJobIsRunning"),
       jobInfo:await getStorageItem("replaceShopifyEmailValues"),
     })
   }
+  if(request.msg.type === "ResetToDefault"){
+    await setStorageItem("replaceShopifyEmailValuesJobIsRunning","TRUE")
+    runJob(request.msg.value,"resetToDefault")
+  }
+
 });
 
 getStorageItem("replaceShopifyEmailValuesJobIsRunning")
@@ -257,7 +298,7 @@ getStorageItem("replaceShopifyEmailValuesJobIsRunning")
     getStorageItem("replaceShopifyEmailValues")
     .then(async (value)=>{
       await sleep(5000)
-      bulkConvertAllEmails(value)
+      runJob(value)
     })
 
   }

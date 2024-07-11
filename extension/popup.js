@@ -74,7 +74,7 @@ function getValues() {
     if (myInput) {
       value[option] = myInput.value;
       if(["myIndex"].includes(option)){
-        value[option] = parseInt(value[option])
+        value[option] = parseInt(value[option] ?? 0)
       }
     }
   });
@@ -83,7 +83,6 @@ function getValues() {
 }
 
 startJob = async ()=>{
-  await setStorageItem("replaceShopifyEmailValuesJobIsRunning","TRUE")
   let value = getValues()
   await setStorageItem("currentIndex",value.myIndex.toString())
   sendMsgToWebsite({
@@ -94,11 +93,10 @@ startJob = async ()=>{
 }
 
 stopJob = async ()=>{
-  await setStorageItem("replaceShopifyEmailValuesJobIsRunning","FALSE")
   sendMsgToWebsite({
-    type:"StopJob",
-    value
+    type:"StopJob"
   })
+  window.close()
 
 }
 
@@ -112,10 +110,21 @@ updateThisTemplate = ()=>{
 }
 
 
+resetToDefault = ()=>{
+
+
+  sendMsgToWebsite({
+    type:"ResetToDefault",
+    value:getValues()
+  })
+  window.close()
+}
+
 window.addEventListener('DOMContentLoaded',async () => {
   document.querySelector("#startJob").addEventListener("click",startJob)
   document.querySelector("#updateThisTemplate").addEventListener("click",updateThisTemplate)
   document.querySelector("#stopJob").addEventListener("click",stopJob)
+  document.querySelector("#resetToDefault").addEventListener("click",resetToDefault)
   let removeSources = document.getElementById("removeSources");
   removeSources.checked = true;
 
