@@ -181,7 +181,7 @@ async function resetEmailTemplate(){
       confirmRevertBtn.click();
     }
   })
-  await sleep(3000);
+  await sleep(2000);
 }
 
 async function runJob(myInput,type) {
@@ -226,8 +226,11 @@ async function runJob(myInput,type) {
   if(type ==="bulkConvertAllEmails"){
     await convertEmailTemplate(myInput, false);
   }
-  else{
+  else if(type==="resetToDefault"){
     await resetEmailTemplate()
+  } else{
+    await resetEmailTemplate()
+    await convertEmailTemplate(myInput, false);
   }
 
   try {
@@ -284,9 +287,13 @@ chrome.runtime.onMessage.addListener(async function (request, sender, sendRespon
       jobInfo:await getStorageItem("replaceShopifyEmailValues"),
     })
   }
-  if(request.msg.type === "ResetToDefault"){
+  else if(request.msg.type === "ResetToDefault"){
     await setStorageItem("replaceShopifyEmailValuesJobIsRunning","TRUE")
     runJob(request.msg.value,"resetToDefault")
+  }
+  else if(request.msg.type === "UpdateJob"){
+    await setStorageItem("replaceShopifyEmailValuesJobIsRunning","TRUE")
+    runJob(request.msg.value,"updateJob")
   }
 
 });

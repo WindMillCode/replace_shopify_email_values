@@ -117,7 +117,17 @@ resetToDefault = ()=>{
     type:"ResetToDefault",
     value:getValues()
   })
-  // window.close()
+  window.close()
+}
+
+updateJob = ()=>{
+
+
+  sendMsgToWebsite({
+    type:"UpdateJob",
+    value:getValues()
+  })
+  window.close()
 }
 
 window.addEventListener('DOMContentLoaded',async () => {
@@ -125,19 +135,25 @@ window.addEventListener('DOMContentLoaded',async () => {
   document.querySelector("#updateThisTemplate").addEventListener("click",updateThisTemplate)
   document.querySelector("#stopJob").addEventListener("click",stopJob)
   document.querySelector("#resetToDefault").addEventListener("click",resetToDefault)
+  document.querySelector("#updateJob").addEventListener("click",updateJob)
   let removeSources = document.getElementById("removeSources");
   removeSources.checked = true;
 
-
-  document.getElementById("storeURL").value="https://eneobia.com/account/billing"
-  document.getElementById("forgotPassURL").value = "https://eneobia.com/auth/forgot-pass"
-  document.getElementById("accountURL").value="https://eneobia.com/account/overview"
-
-  let jobInfo = await sendMsgToWebsite({
+  sendMsgToWebsite({
     type:"GetInfo"
   })
-  debugger
-  document.getElementById("myIndex").value = parseInt(jobInfo.jobInfo.myIndex ??0);
+  .then((jobItems)=>{
+    let {jobInfo} = jobItems ?? {}
+    document.getElementById("isJobRunning").innerText = "Job Is Running:" +jobItems.jobIsRunning
+    document.getElementById("accountURL").value= jobInfo.accountURL
+    document.getElementById("forgotPassURL").value = jobInfo.forgotPassURL
+    document.getElementById("storeURL").value=jobInfo.storeURL
+    document.getElementById("storeURLText").value= jobInfo.storeURLText
+
+    document.getElementById("myIndex").value = parseInt(jobInfo.myIndex ??0);
+
+  })
+
 
 
 
