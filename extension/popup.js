@@ -42,7 +42,6 @@ async function sendMsgToWebsite(msg) {
       chrome.tabs.query({active: true, windowId: w.id}, async(tabs) => {
         const tabId = tabs[0].id;
         const response = await chrome.tabs.sendMessage(tabId, {msg});
-        console.log(response)
         res(response)
 
       });
@@ -121,9 +120,9 @@ window.addEventListener('DOMContentLoaded',async () => {
   removeSources.checked = true;
 
 
-  document.getElementById("storeURL").value="https://example.com:4203/account/billing"
-  document.getElementById("forgotPassURL").value = "https://example.com:4203/auth/forgot-pass"
-  document.getElementById("accountURL").value="https://example.com:4203/account/overview"
+  document.getElementById("storeURL").value="https://eneobia.com/account/billing"
+  document.getElementById("forgotPassURL").value = "https://eneobia.com/auth/forgot-pass"
+  document.getElementById("accountURL").value="https://eneobia.com/account/overview"
 
   let jobInfo = await sendMsgToWebsite({
     type:"GetInfo"

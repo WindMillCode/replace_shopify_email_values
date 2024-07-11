@@ -59,8 +59,8 @@ async function getStorageItem(key) {
 }
 
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function sleep(ms,waitTime=0) {
+  return new Promise(resolve => setTimeout(resolve, ms+waitTime));
 }
 
 function containsSubstrings(text, substrings) {
@@ -136,21 +136,21 @@ async function scrollAndEditElements(scroller,myInput) {
     });
 
     scroller.scrollTop = 0
-    await sleep(1);
+    await sleep(1,0);
     scroller.scrollTop += Math.ceil(scroller.clientHeight/2) * scrollCounter;
     scrollCounter+=1
 
-    await sleep(100); // Adjust sleep time based on the rendering speed
+    await sleep(100,0); // Adjust sleep time based on the rendering speed
   }
   scroller.scrollTop = 0
 }
 
 async function bulkConvertAllEmails(myInput) {
   let emailTemplates = Array.from(document.querySelectorAll("._SettingsItem__clickableAction_ihwpi_123"));
-  if(myInput.myIndex > emailTemplates.length){
+  // lucky guess there has to be at least 30 different emails shopify can send out
+  if(myInput.myIndex > emailTemplates.length && emailTemplates.length>30){
     await setStorageItem("replaceShopifyEmailValuesJobIsRunning","FALSE")
   }
-  // hold on to this one day the page may not be forced to reload anymore
   try {
     let x = emailTemplates[myInput.myIndex];
     x.click();
@@ -242,7 +242,7 @@ chrome.runtime.onMessage.addListener(async function (request, sender, sendRespon
     await setStorageItem("replaceShopifyEmailValuesJobIsRunning","FALSE")
   }
   else if(request.msg.type === "GetInfo"){
-    
+
     sendResponse({
       jobIsRunning:await getStorageItem("replaceShopifyEmailValuesJobIsRunning"),
       jobInfo:await getStorageItem("replaceShopifyEmailValues"),
