@@ -117,7 +117,7 @@ resetToDefault = ()=>{
     type:"ResetToDefault",
     value:getValues()
   })
-  window.close()
+  // window.close()
 }
 
 window.addEventListener('DOMContentLoaded',async () => {
