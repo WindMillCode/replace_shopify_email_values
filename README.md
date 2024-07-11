@@ -42,3 +42,28 @@ Enjoy modifying your ChatGPT prompts! If you have any questions or issues, feel 
 # Extension Description
 
 ### Extension Description
+Replace Shopify Email Variables
+
+Are you tired of manually updating email variables in your Shopify store? Save time and eliminate errors with the Replace Shopify Email Variables Chrome Extension!
+
+Drawbacks
+  if it errors you need to held back to the main customer notifications and start over
+  for jobs you must keep the screen open for the duration of the job
+
+This powerful tool automates the task of replacing Shopify email variables, ensuring your emails always contain the correct links and information. Customize and update your store's URLs effortlessly:
+
+Store URL: Replace the main store URL to redirect customers seamlessly.
+Forgot Password URL: Ensure your customers can easily reset their passwords with the correct link.
+Account URL: Direct customers to their account overview with an updated URL.
+Store URL Text: Customize the text for store URLs to provide clear navigation.
+Key Features:
+
+Easy to Use: Intuitive interface that lets you update URLs and text fields with just a few clicks.
+Automation: Automatically replace email variables, reducing manual work and minimizing mistakes.
+Customizable: Tailor each URL and text to fit your store's needs perfectly.
+Efficiency: Save time and focus on what matters most—growing your business.
+Whether you're updating a single email or your entire email system, Replace Shopify Email Variables makes the process quick and easy. Enhance your store's professionalism and ensure a seamless customer experience with accurate and up-to-date information in every email.
+
+Download Now and take the hassle out of managing your Shopify email variables!
+
+

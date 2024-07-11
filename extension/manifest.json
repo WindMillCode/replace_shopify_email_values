@@ -10,9 +10,12 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' blob: data:"
   },
+  "host_permissions": [
+    "https://admin.shopify.com/*"
+  ],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["https://admin.shopify.com/*"],
       "js": ["content.js"]
     }
   ],

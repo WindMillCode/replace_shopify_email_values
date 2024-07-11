@@ -74,7 +74,7 @@ function getValues() {
     if (myInput) {
       value[option] = myInput.value;
       if(["myIndex"].includes(option)){
-        value[option] = parseInt(value[option] ?? 0)
+        value[option] = parseInt(value[option] ?? 1)-1
       }
     }
   });
@@ -150,7 +150,7 @@ window.addEventListener('DOMContentLoaded',async () => {
     document.getElementById("storeURL").value=jobInfo.storeURL
     document.getElementById("storeURLText").value= jobInfo.storeURLText
 
-    document.getElementById("myIndex").value = parseInt(jobInfo.myIndex ??0);
+    document.getElementById("myIndex").value = parseInt(jobInfo.myIndex ??0)+1;
 
   })
 

@@ -1,6 +1,7 @@
 let editBtnSelector = [
   "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button",
   "#settings-body > div > div.Polaris-Box > div:nth-child(2) > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button",
+  "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button",
   "#settings-body > div > div.Polaris-Box > div.Polaris-Page-Header--mediumTitle > div > div.Polaris-Page-Header__RightAlign > div.Polaris-Page-Header__PrimaryActionWrapper > div > button"
 ]
 
@@ -27,7 +28,8 @@ let revertToDefaultBtnSelector = [
 ]
 
 let confirmRevertBtnSelector = [
-  "#PolarisPortalsContainer > div:nth-child(14) > div:nth-child(1) > div > div > div > div.Polaris-Modal-Dialog__Modal > div.Polaris-Modal-Footer > div > div > div > div.Polaris-InlineStack > button.Polaris-Button.Polaris-Button--pressable.Polaris-Button--variantPrimary.Polaris-Button--sizeMedium.Polaris-Button--textAlignCenter.Polaris-Button--toneCritical"
+  "#PolarisPortalsContainer > div:nth-child(14) > div:nth-child(1) > div > div > div > div.Polaris-Modal-Dialog__Modal > div.Polaris-Modal-Footer > div > div > div > div.Polaris-InlineStack > button.Polaris-Button.Polaris-Button--pressable.Polaris-Button--variantPrimary.Polaris-Button--sizeMedium.Polaris-Button--textAlignCenter.Polaris-Button--toneCritical",
+  "#PolarisPortalsContainer > div:nth-child(13) > div:nth-child(1) > div > div > div > div.Polaris-Modal-Dialog__Modal > div.Polaris-Modal-Footer > div > div > div > div.Polaris-InlineStack > button.Polaris-Button.Polaris-Button--pressable.Polaris-Button--variantPrimary.Polaris-Button--sizeMedium.Polaris-Button--textAlignCenter.Polaris-Button--toneCritical"
 ]
 
 async function setStorageItem(key, value) {
@@ -165,23 +167,27 @@ async function convertEmailTemplate(myInput,showPreview=true) {
 }
 
 async function resetEmailTemplate(){
-  revertToDefaultBtnSelector.forEach((y,j)=>{
+  try {
+    revertToDefaultBtnSelector.forEach((y,j)=>{
 
-    let revertToDefaultBtn = document.querySelector(y);
-    if(revertToDefaultBtn !==null){
-      revertToDefaultBtn.click();
-    }
-  })
-  await sleep(3000);
+      let revertToDefaultBtn = document.querySelector(y);
+      if(revertToDefaultBtn !==null){
+        revertToDefaultBtn.click();
+      }
+    })
+    await sleep(3000);
 
-  confirmRevertBtnSelector.forEach((y,j)=>{
+    confirmRevertBtnSelector.forEach((y,j)=>{
 
-    let confirmRevertBtn = document.querySelector(y);
-    if(confirmRevertBtn !==null){
-      confirmRevertBtn.click();
-    }
-  })
-  await sleep(2000);
+      let confirmRevertBtn = document.querySelector(y);
+      if(confirmRevertBtn !==null){
+        confirmRevertBtn.click();
+      }
+    })
+    await sleep(2000);
+  } catch (error) {
+
+  }
 }
 
 async function runJob(myInput,type) {
