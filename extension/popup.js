@@ -74,7 +74,9 @@ function getValues() {
     if (myInput) {
       value[option] = myInput.value;
       if(["myIndex"].includes(option)){
-        value[option] = parseInt(value[option] ?? 1)-1
+        let normalizedVal = parseInt(value[option] ?? 1)
+        normalizedVal = normalizedVal>0 ? normalizedVal :1
+        value[option] = normalizedVal-1
       }
     }
   });
